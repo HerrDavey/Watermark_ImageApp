@@ -25,27 +25,53 @@ class WatermarkApp:
         self.central_frame.place(anchor="c", relx=.5, rely=.6)
 
         Label(self.top_frame, text="Welcome to Watermark App!", bg=self.COLOR_SET[1], font=self.FONT_H1).place(anchor="c", relx=.5, rely=.5)
-        Button(self.central_frame, text="Select File", command=self.OpenFile).place(anchor="c", relx=.5, rely=.5)
+        Button(self.central_frame, text="Select File", command=self.start_app).place(anchor="c", relx=.5, rely=.5)
 
 
-    def OpenFile(self):
+    def start_app(self):
+        self.openfile()
+        self.change_topbar()
+        
+    def openfile(self):
         try:
             file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
             if file:
+                self.main_image = Image.open(file)
                 
                 for widget in self.central_frame.winfo_children():
                     widget.destroy()
                 
-                img = ImageTk.PhotoImage(Image.open(file).resize((750,450)))
+                img = ImageTk.PhotoImage(self.main_image.resize((750,450)))
                 photo = Label(self.central_frame, image=img)
                 photo.image=img
                 photo.pack() 
+
 
         except FileNotFoundError:
             messagebox.showerror("Unfound file", "The selected file was not found.")
 
         except Exception as e:
             messagebox.showerror("Something goes wrong", str(e))
+
+    def openwatermark(self):
+        file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
+        if file: 
+            for widget in self.top_frame.winfo_children():
+                widget.destroy()
+            
+            img = ImageTk.PhotoImage(Image.open(file).resize((750,100)))
+            photo = Label(self.top_frame, image=img)
+            photo.image=img
+            photo.pack() 
+
+    def change_topbar(self):
+        for widget in self.top_frame.winfo_children():
+            widget.destroy()
+
+        self.select_watermark_btn = Button(self.top_frame, 
+                                            text="Choose watermark",
+                                            command=self.openwatermark)
+        self.select_watermark_btn.place(anchor="c", relx=.5, rely=.5)
 
 
 if __name__ == "__main__":
