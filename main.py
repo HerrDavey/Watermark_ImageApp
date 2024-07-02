@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageEnhance
 
 
 class WatermarkApp:
@@ -46,7 +46,6 @@ class WatermarkApp:
                 photo.image=img
                 photo.pack() 
 
-
         except FileNotFoundError:
             messagebox.showerror("Unfound file", "The selected file was not found.")
 
@@ -54,15 +53,32 @@ class WatermarkApp:
             messagebox.showerror("Something goes wrong", str(e))
 
     def openwatermark(self):
-        file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
+        file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png"))])
         if file: 
             for widget in self.top_frame.winfo_children():
                 widget.destroy()
-            
-            img = ImageTk.PhotoImage(Image.open(file).resize((750,100)))
+
+            self.watermark = Image.open(file)
+            img = ImageTk.PhotoImage(self.watermark.resize((350, 100)))
             photo = Label(self.top_frame, image=img)
             photo.image=img
             photo.pack() 
+
+            self.apply_watermark()
+
+    def apply_watermark(self):
+        if self.main_image and self.watermark:
+
+            watermark = self.watermark.resize((int(self.main_image.width * 0.3), int(self.main_image.height * 0.3)))
+            self.main_image.paste(watermark, (0, 0), watermark)
+        
+            for widget in self.central_frame.winfo_children():
+                widget.destroy()
+            
+            img = ImageTk.PhotoImage(self.main_image.resize((750, 450)))
+            photo = Label(self.central_frame, image=img)
+            photo.image = img
+            photo.pack()
 
     def change_topbar(self):
         for widget in self.top_frame.winfo_children():
