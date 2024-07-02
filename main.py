@@ -18,14 +18,22 @@ root.config(bg=COLOR_SET[2])
 
 def OpenFile():
     try:
-        #file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
-        #if file:
-        img = ImageTk.PhotoImage(Image.open(file).resize((750,450)))
-        photo = Label(central_frame, image=img)
-        photo.pack()
+        file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
+        if file:
+            
+            for widget in central_frame.winfo_children():
+                widget.destroy()
+            
+            img = ImageTk.PhotoImage(Image.open(file).resize((750,450)))
+            photo = Label(central_frame, image=img)
+            photo.image=img
+            photo.pack() 
 
     except FileNotFoundError:
         messagebox.showerror("Unfound file", "The selected file was not found.")
+
+    except Exception as e:
+        messagebox.showerror("Something goes wrong", str(e))
 
 
 # Frames
