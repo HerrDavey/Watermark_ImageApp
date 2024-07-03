@@ -41,10 +41,23 @@ class WatermarkApp:
                 for widget in self.central_frame.winfo_children():
                     widget.destroy()
                 
-                img = ImageTk.PhotoImage(self.main_image.resize((750,450)))
+                if self.main_image.width > 750 and self.main_image.height > 450:
+                    img = ImageTk.PhotoImage(self.main_image.resize((550,450)))
+                else:
+                    img = ImageTk.PhotoImage(self.main_image.resize((int(self.main_image.width * 0.7), int(self.main_image.height * 0.7))))
+
+
                 photo = Label(self.central_frame, image=img)
                 photo.image=img
                 photo.pack() 
+            else:
+                question = messagebox.askquestion("You did not choose file", "Do you want to try again?")
+                if question == "yes":
+                    self.start_app()
+                else:
+                    quit()
+                
+
 
         except FileNotFoundError:
             messagebox.showerror("Unfound file", "The selected file was not found.")
