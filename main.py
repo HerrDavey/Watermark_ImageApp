@@ -10,103 +10,94 @@ class WatermarkApp:
         self.root = root
         self.COLOR_SET = ['#5A639C', '#7776B3', '#9B86BD', '#E2BBE9']
         self.FONT_H1 = ("Comic Sans MS", 20, "bold")
+        self.main_image = None
+        self.watermark = None
         self.setup_ui()
 
     def setup_ui(self):
+        self.configure_root()
+        self.create_frames()
+        self.create_top_frame_content()
+        self.create_central_frame_content()
+
+    def configure_root(self):
         self.root.geometry('900x600')
         self.root.maxsize(900, 600)
         self.root.title("Watermark your Image")
         self.root.resizable(False, False)
         self.root.config(bg=self.COLOR_SET[2])
 
+    def create_frames(self):
         self.top_frame = Frame(self.root, width=750, height=100, bg=self.COLOR_SET[1])
         self.top_frame.place(anchor="n", relx=.5, rely=.02)
         self.central_frame = Frame(self.root, width=750, height=450, bg=self.COLOR_SET[0])
         self.central_frame.place(anchor="c", relx=.5, rely=.6)
 
+    def create_top_frame_content(self):
         Label(self.top_frame, text="Welcome to Watermark App!", bg=self.COLOR_SET[1], font=self.FONT_H1).place(anchor="c", relx=.5, rely=.5)
-        Button(self.central_frame, text="Select File", command=self.start_app).place(anchor="c", relx=.5, rely=.5)
 
+    def create_central_frame_content(self):
+        Button(self.central_frame, text="Select File", command=self.start_app).place(anchor="c", relx=.5, rely=.5)
 
     def start_app(self):
         self.openfile()
         self.change_topbar()
-        
+
     def openfile(self):
-        try:
-            file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
-            if file:
-                self.main_image = Image.open(file)
-                
-                for widget in self.central_frame.winfo_children():
-                    widget.destroy()
-                
-                if self.main_image.width > 750 and self.main_image.height > 450:
-                    img = ImageTk.PhotoImage(self.main_image.resize((550,450)))
-                else:
-                    img = ImageTk.PhotoImage(self.main_image.resize((int(self.main_image.width * 0.7), int(self.main_image.height * 0.7))))
+        file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png", ".jpg"))])
+        if file:
+            self.main_image = Image.open(file)
+            self.display_image(self.main_image)
+        else:
+            self.handle_no_file_selected()
 
+    def handle_no_file_selected(self):
+        question = messagebox.askquestion("You did not choose file", "Do you want to try again?")
+        if question == "yes":
+            self.start_app()
+        else:
+            self.root.quit()
 
-                photo = Label(self.central_frame, image=img)
-                photo.image=img
-                photo.pack() 
-            else:
-                question = messagebox.askquestion("You did not choose file", "Do you want to try again?")
-                if question == "yes":
-                    self.start_app()
-                else:
-                    quit()
-                
+    def display_image(self, image):
+        self.clear_frame(self.central_frame)
+        img = self.resize_image(image, 750, 450, 0.7)
+        self.show_image(img, self.central_frame)
 
+    def resize_image(self, image, max_width, max_height, scale_factor):
+        if image.width > max_width or image.height > max_height:
+            return ImageTk.PhotoImage(image.resize((int(image.width * scale_factor), int(image.height * scale_factor))))
+        return ImageTk.PhotoImage(image)
 
-        except FileNotFoundError:
-            messagebox.showerror("Unfound file", "The selected file was not found.")
-
-        except Exception as e:
-            messagebox.showerror("Something goes wrong", str(e))
+    def show_image(self, img, frame):
+        photo = Label(frame, image=img)
+        photo.image = img
+        photo.pack()
 
     def openwatermark(self):
         file = filedialog.askopenfilename(initialdir="C:", filetypes=[("Image file", (".png"))])
-        if file: 
-            for widget in self.top_frame.winfo_children():
-                widget.destroy()
-
+        if file:
             self.watermark = Image.open(file)
-            img = ImageTk.PhotoImage(self.watermark.resize((350, 100)))
-            photo = Label(self.top_frame, image=img)
-            photo.image=img
-            photo.pack() 
-
             self.apply_watermark()
 
     def apply_watermark(self):
         if self.main_image and self.watermark:
-
             watermark = self.watermark.resize((int(self.main_image.width * 0.3), int(self.main_image.height * 0.3)))
             self.main_image.paste(watermark, (0, 0), watermark)
-        
-            for widget in self.central_frame.winfo_children():
-                widget.destroy()
-            
-            img = ImageTk.PhotoImage(self.main_image.resize((750, 450)))
-            photo = Label(self.central_frame, image=img)
-            photo.image = img
-            photo.pack()
+            self.display_image(self.main_image)
 
     def change_topbar(self):
-        for widget in self.top_frame.winfo_children():
-            widget.destroy()
+        self.clear_frame(self.top_frame)
+        self.create_watermark_button()
 
-        self.select_watermark_btn = Button(self.top_frame, 
-                                            text="Choose watermark",
-                                            command=self.openwatermark)
-        self.select_watermark_btn.place(anchor="c", relx=.5, rely=.5)
+    def create_watermark_button(self):
+        Button(self.top_frame, text="Choose watermark", command=self.openwatermark).place(anchor="c", relx=.5, rely=.5)
+
+    def clear_frame(self, frame):
+        for widget in frame.winfo_children():
+            widget.destroy()
 
 
 if __name__ == "__main__":
-    root=Tk()
-    app=WatermarkApp(root=root)
+    root = Tk()
+    app = WatermarkApp(root=root)
     root.mainloop()
-
-
- 
