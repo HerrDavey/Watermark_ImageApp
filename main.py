@@ -1,15 +1,16 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import Image, ImageTk, ImageEnhance
+from tkinter import simpledialog
+from PIL import Image, ImageTk
 
 
 class WatermarkApp:
 
     def __init__(self, root):
         self.root = root
-        self.COLOR_SET = ['#5A639C', '#7776B3', '#9B86BD', '#E2BBE9']
-        self.FONT_H1 = ("Comic Sans MS", 20, "bold")
+        self.COLOR_SET = ['#151515', '#A91D3A', '#C73659', '#EEEEEE']
+        self.FONT_H1 = ("MS Reference Sans Serif", 20, "bold")
         self.main_image = None
         self.watermark = None
         self.setup_ui()
@@ -21,17 +22,17 @@ class WatermarkApp:
         self.create_central_frame_content()
 
     def configure_root(self):
-        self.root.geometry('900x600')
-        self.root.maxsize(900, 600)
+        self.root.geometry('950x600')
+        self.root.maxsize(950, 600)
         self.root.title("Watermark your Image")
         self.root.resizable(False, False)
         self.root.config(bg=self.COLOR_SET[2])
 
     def create_frames(self):
-        self.top_frame = Frame(self.root, width=750, height=100, bg=self.COLOR_SET[1])
+        self.top_frame = Frame(self.root, width=950, height=60, bg=self.COLOR_SET[1])
         self.top_frame.place(anchor="n", relx=.5, rely=.02)
         self.central_frame = Frame(self.root, width=750, height=450, bg=self.COLOR_SET[0])
-        self.central_frame.place(anchor="c", relx=.5, rely=.6)
+        self.central_frame.place(anchor="c", relx=.5, rely=.55)
 
     def create_top_frame_content(self):
         Label(self.top_frame, text="Welcome to Watermark App!", bg=self.COLOR_SET[1], font=self.FONT_H1).place(anchor="c", relx=.5, rely=.5)
@@ -60,12 +61,12 @@ class WatermarkApp:
 
     def display_image(self, image):
         self.clear_frame(self.central_frame)
-        img = self.resize_image(image, 750, 450, 0.7)
+        img = self.resize_image(image, 550, 450)
         self.show_image(img, self.central_frame)
 
-    def resize_image(self, image, max_width, max_height, scale_factor):
+    def resize_image(self, image, max_width, max_height):
         if image.width > max_width or image.height > max_height:
-            return ImageTk.PhotoImage(image.resize((int(image.width * scale_factor), int(image.height * scale_factor))))
+            return ImageTk.PhotoImage(image.resize((450, 450)))
         return ImageTk.PhotoImage(image)
 
     def show_image(self, img, frame):
@@ -84,6 +85,8 @@ class WatermarkApp:
             watermark = self.watermark.resize((int(self.main_image.width * 0.3), int(self.main_image.height * 0.3)))
             self.main_image.paste(watermark, (0, 0), watermark)
             self.display_image(self.main_image)
+            self.clear_frame(self.top_frame)
+            self.create_export_button()
 
     def change_topbar(self):
         self.clear_frame(self.top_frame)
@@ -91,11 +94,19 @@ class WatermarkApp:
 
     def create_watermark_button(self):
         Button(self.top_frame, text="Choose watermark", command=self.openwatermark).place(anchor="c", relx=.5, rely=.5)
+    
+    def create_export_button(self):
+        Button(self.top_frame, text="Export your image", command=self.export_image).place(anchor="c", relx=.5, rely=.5)
 
     def clear_frame(self, frame):
         for widget in frame.winfo_children():
             widget.destroy()
 
+    def export_image(self):
+        file_name = simpledialog.askstring("Name your file", "Enter your file name: ")
+        self.main_image.save(file_name+".jpg")
+        messagebox.showinfo("Saving Complete", "Your image was saved correctly")
+        self.root.quit()
 
 if __name__ == "__main__":
     root = Tk()
