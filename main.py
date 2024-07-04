@@ -31,7 +31,7 @@ class WatermarkApp:
     def create_frames(self):
         self.top_frame = Frame(self.root, width=950, height=60, bg=self.COLOR_SET[1])
         self.top_frame.place(anchor="n", relx=.5, rely=.02)
-        self.central_frame = Frame(self.root, width=750, height=450, bg=self.COLOR_SET[0])
+        self.central_frame = Canvas(self.root, width=750, height=450, bg=self.COLOR_SET[0])
         self.central_frame.place(anchor="c", relx=.5, rely=.55)
 
     def create_top_frame_content(self):
@@ -61,13 +61,15 @@ class WatermarkApp:
 
     def display_image(self, image):
         self.clear_frame(self.central_frame)
-        img = self.resize_image(image, 550, 450)
+        img = self.resize_image(image, 750, 450)
         self.show_image(img, self.central_frame)
 
-    def resize_image(self, image, max_width, max_height):
+    def resize_image(self, image, max_width, max_height):        
         if image.width > max_width or image.height > max_height:
-            return ImageTk.PhotoImage(image.resize((450, 450)))
-        return ImageTk.PhotoImage(image)
+            return ImageTk.PhotoImage(image.resize((550, 450)))
+        else:
+            return ImageTk.PhotoImage(image.resize((int(image.width * 0.5), int(image.height * 0.5))))
+
 
     def show_image(self, img, frame):
         photo = Label(frame, image=img)
@@ -82,7 +84,7 @@ class WatermarkApp:
 
     def apply_watermark(self):
         if self.main_image and self.watermark:
-            watermark = self.watermark.resize((int(self.main_image.width * 0.3), int(self.main_image.height * 0.3)))
+            watermark = self.watermark.resize((int(self.main_image.width * 0.25), int(self.main_image.height * 0.25)))
             self.main_image.paste(watermark, (0, 0), watermark)
             self.display_image(self.main_image)
             self.clear_frame(self.top_frame)
@@ -112,3 +114,6 @@ if __name__ == "__main__":
     root = Tk()
     app = WatermarkApp(root=root)
     root.mainloop()
+
+
+#TODO 2: Drag and put the watermark on photo
