@@ -90,6 +90,7 @@ class WatermarkApp:
             self.clear_frame(self.top_frame)
             self.create_export_button()
 
+
     def change_topbar(self):
         self.clear_frame(self.top_frame)
         self.create_watermark_button()
@@ -115,5 +116,3 @@ if __name__ == "__main__":
     app = WatermarkApp(root=root)
     root.mainloop()
 
-
-#TODO 2: Drag and put the watermark on photo
